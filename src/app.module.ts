@@ -2,6 +2,9 @@ import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { UsersModule } from './users/users.module';
+import { PostsController } from './posts/posts.controller';
+import { PostsService } from './posts/posts.service';
+import { PostsModule } from './posts/posts.module';
 
 @Module({
   imports: [
@@ -27,6 +30,9 @@ import { UsersModule } from './users/users.module';
       }),
     }),
     UsersModule,
+    PostsModule,
   ],
+  controllers: [PostsController],
+  providers: [PostsService],
 })
 export class AppModule {}
