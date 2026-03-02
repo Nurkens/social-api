@@ -5,7 +5,6 @@ import { Repository } from 'typeorm';
 import { CreateUserDto } from './dto/create.user-dto';
 @Injectable()
 export class UsersService {
-    
     constructor(@InjectRepository(User) private userRepository: Repository<User> ){}
     
     async createUser(dto: CreateUserDto){
@@ -14,7 +13,10 @@ export class UsersService {
     }
 
     async getAllUsers(){
-        
         return await this.userRepository.find();
+    }
+
+    async findOne(id: number): Promise<User | null> {
+    return await this.userRepository.findOne({ where: { id } });
     }
 }

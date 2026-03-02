@@ -32,7 +32,7 @@ import { PostsModule } from './posts/posts.module';
     UsersModule,
     PostsModule,
   ],
-  controllers: [PostsController],
-  providers: [PostsService],
+  controllers: [],
+  providers: [],
 })
 export class AppModule {}
