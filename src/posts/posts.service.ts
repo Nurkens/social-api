@@ -29,4 +29,9 @@ export class PostsService {
 
         return await this.postsRepository.save(post);
     }
+
+
+    async getAllPosts(){
+        return await this.postsRepository.find({relations:['author']});
+    }
 }

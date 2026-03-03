@@ -12,6 +12,10 @@ export class PostsController {
         return this.postsService.createPost(postDto);
     }
     
+    @Get()
+    getAllPosts(){
+        return this.postsService.getAllPosts();
+    }
     
 
 }
