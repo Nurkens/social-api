@@ -1,9 +1,10 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { ForbiddenException, Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Posts } from './posts.entity';
 import { Repository } from 'typeorm';
 import { CreatePostDto } from './dto/create-post.dto';
 import { UsersService } from 'src/users/users.service';
+import { UpdatePostDto } from './dto/update-post.dto';
 
 @Injectable()
 export class PostsService {
@@ -33,5 +34,39 @@ export class PostsService {
 
     async getAllPosts(){
         return await this.postsRepository.find({relations:['author']});
+    }
+
+    async remove(id:number,userId:number){
+        const post = await this.postsRepository.findOne({
+            where:{id},
+            relations:['author']
+        });
+        if(post?.author.id !== userId){
+            throw new NotFoundException('You are not the author of this post');
+        }
+
+        return await this.postsRepository.delete(id);
+
+    }
+
+    async update(id:number,userId:number,updateDto:UpdatePostDto){
+        const post = await this.postsRepository.findOne({
+            where:{id},
+            relations:['author']
+        })
+        if(!post){
+            throw new NotFoundException('Post is not found');
+        }
+
+       
+        
+        if(post.author.id !== userId){
+            throw new ForbiddenException('You are not the author of this post');
+        }
+
+        
+        Object.assign(post,updateDto);
+
+        return await this.postsRepository.save(post);
     }
 }
