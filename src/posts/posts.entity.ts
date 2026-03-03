@@ -1,3 +1,4 @@
+import { Exclude } from "class-transformer";
 import { User } from "src/users/user.entity";
 import { Entity, PrimaryGeneratedColumn } from "typeorm";
 import { Column } from "typeorm";
@@ -14,7 +15,7 @@ export class Posts{
 
     @Column()
     declare content:string;
-
+    @Exclude()
     @ManyToOne(()=> User,(user)=>user.posts)
     declare author: User;
 

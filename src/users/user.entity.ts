@@ -7,13 +7,19 @@ import { Exclude } from 'class-transformer';
 export class User {
   @PrimaryGeneratedColumn()
   declare id: number;
-
-  @Column()
+  @Exclude()
+  @Column({unique:true})
   declare email: string;
 
-  @Column()
   @Exclude()
+  @Column()
   declare password: string;
+
+  @Column({unique:true})
+  declare username:string;
+
+  @Column({nullable:true})
+  declare bio?:string;
 
   @OneToMany(()=>Posts,(posts) => posts.author)
   declare posts: Posts[];
