@@ -9,6 +9,5 @@ export class CreatePostDto{
     @IsString()
     @IsNotEmpty()
     readonly content:string;
-    @IsInt()
-    readonly authorId:number;
+    
 }

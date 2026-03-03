@@ -14,9 +14,9 @@ export class PostsService {
         private usersService: UsersService 
     ) {}
 
-    async createPost(dto: CreatePostDto) {
+    async createPost(dto: CreatePostDto,authorId:number) {
         
-        const user = await this.usersService.findOne(dto.authorId);
+        const user = await this.usersService.findOne(authorId);
 
         if (!user) {
             throw new NotFoundException("User not found");
