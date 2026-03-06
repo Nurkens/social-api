@@ -1,6 +1,7 @@
-import { Controller, Post ,Body,Get,Param} from '@nestjs/common';
+import { Controller, Post ,Body,Get,Param, UseGuards,Req} from '@nestjs/common';
 import { UsersService } from './users.service';
 import { CreateUserDto } from './dto/create.user-dto';
+import { AuthGuard } from '@nestjs/passport';
 @Controller('users')
 export class UsersController {
     constructor(private usersService: UsersService){}
@@ -23,6 +24,13 @@ export class UsersController {
     getProfile(@Param('username') username:string){
         return this.usersService.getProfileByUsername(username);
     }
+    @UseGuards(AuthGuard('jwt'))
+    @Post('follow/:id')
+    followUser(@Param('id') targetId:number, @Req() req){
+        const userId = req.user.userId;
+        return this.usersService.follow(userId,+targetId)
+    }
+
 }
 
     

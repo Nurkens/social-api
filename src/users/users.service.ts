@@ -1,4 +1,4 @@
-import { Inject, Injectable, NotFoundException } from '@nestjs/common';
+import { BadRequestException, Inject, Injectable, NotFoundException } from '@nestjs/common';
 import { User } from './user.entity';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
@@ -44,7 +44,34 @@ export class UsersService {
 
          return profile;
 
+    }
 
+    async follow(userId:number,targetId:number){
+        if(userId === targetId){
+            throw new BadRequestException('You cannot follow to yourself');
+        }
+        const me = await this.userRepository.findOne({
+            where:{id:userId},
+            relations:['following']
+        })
 
+        if(!me){
+            throw new NotFoundException('Current user not found')
+        }
+        const targetUser = await this.userRepository.findOne({where:{id:targetId}});
+        if(!targetUser){
+            throw new NotFoundException('Target user not found');
+        }
+
+        const isAlreadyFollowed = me.following.some(user => user.id === targetId);
+        if(isAlreadyFollowed){
+            return {message:'You are already followed to this user'}
+        }
+
+        me.following.push(targetUser);
+
+        await this.userRepository.save(me);
+
+        return {message:'Successfully followed'};
     }
 }
