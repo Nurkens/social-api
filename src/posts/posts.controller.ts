@@ -34,4 +34,10 @@ export class PostsController {
         const userId = req.user.userId;
         return this.postsService.update(+id,userId,updateDto);
     }
+    @UseGuards(AuthGuard('jwt'))
+    @Get('feed')
+    getFeed(@Req() req) {
+        const userId = req.user.userId;
+        return this.postsService.getFeed(userId);
+    }
 }

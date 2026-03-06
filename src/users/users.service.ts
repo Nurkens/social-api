@@ -74,4 +74,10 @@ export class UsersService {
 
         return {message:'Successfully followed'};
     }
+    async findWithFollowing(id: number): Promise<User | null> {
+        return await this.userRepository.findOne({
+            where: { id },
+            relations: ['following'] 
+        });
+    }
 }

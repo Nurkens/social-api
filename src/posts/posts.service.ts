@@ -1,10 +1,11 @@
 import { ForbiddenException, Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Posts } from './posts.entity';
-import { Repository } from 'typeorm';
+import { Repository,In} from 'typeorm';
 import { CreatePostDto } from './dto/create-post.dto';
 import { UsersService } from 'src/users/users.service';
 import { UpdatePostDto } from './dto/update-post.dto';
+import { User } from 'src/users/user.entity';
 
 @Injectable()
 export class PostsService {
@@ -68,5 +69,30 @@ export class PostsService {
         Object.assign(post,updateDto);
 
         return await this.postsRepository.save(post);
+    }
+
+    
+
+    async getFeed(userId:number){
+        const me = await this.usersService.findWithFollowing(userId);
+
+        if(!me){
+            throw new NotFoundException("The user is not found");
+        }
+        const followingIds = me.following.map(user => user.id);
+        
+        if (followingIds.length === 0) {
+            return [];
+        }
+
+        return await this.postsRepository.find({
+            where:{
+                author:{
+                    id:In(followingIds)
+                }
+            },
+            relations:['author'],
+            order:{id:'DESC'}
+        })
     }
 }
