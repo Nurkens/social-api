@@ -2,7 +2,7 @@ import { Exclude } from "class-transformer";
 import { User } from "src/users/user.entity";
 import { Entity, PrimaryGeneratedColumn } from "typeorm";
 import { Column } from "typeorm";
-import { ManyToOne } from "typeorm";
+import { ManyToOne,ManyToMany,JoinTable} from "typeorm";
 
 @Entity()
 export class Posts{
@@ -19,7 +19,10 @@ export class Posts{
     @ManyToOne(()=> User,(user)=>user.posts)
     declare author: User;
 
-    
+    @ManyToMany(() => User,(user) =>user.likedPosts)
+    @JoinTable()
+    declare likes:User[]
+
 
 
 }

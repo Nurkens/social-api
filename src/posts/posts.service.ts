@@ -108,4 +108,30 @@ export class PostsService {
 
         return posts;
     }
+    async toggleLike(userId:number,postId:number){
+        const posts = await this.postsRepository.findOne({
+            where:{id:postId},
+            relations:['likes']
+        })
+        
+        if(!posts){
+            throw new NotFoundException("Post is not found");
+        }
+
+        const user = await this.usersService.findOne(userId);
+        if(!user){
+            throw new NotFoundException("User is not found");
+        }
+        const isAlreadyLiked = posts.likes.some(u => u.id === user.id);
+        if(isAlreadyLiked){
+            posts.likes = posts.likes.filter(u => u.id!== userId)
+        }else{
+            posts.likes.push(user);
+        }
+        await this.postsRepository.save(posts)
+        const cacheKey = `feed_user${userId}`;
+        await this.redis.del(cacheKey);
+
+        return {liked:!isAlreadyLiked}
+    }
 }

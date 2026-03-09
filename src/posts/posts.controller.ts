@@ -40,4 +40,10 @@ export class PostsController {
         const userId = req.user.userId;
         return this.postsService.getFeed(userId);
     }
+    @UseGuards(AuthGuard('jwt'))
+    @Post(':id/like')
+    toggleLike(@Param('id') postId:string,@Req() req){
+        const userId = req.user.userId;
+        return this.postsService.toggleLike(userId,+postId)
+    }
 }

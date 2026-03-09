@@ -31,4 +31,6 @@ export class User {
   @OneToMany(()=>Posts,(posts) => posts.author)
   declare posts: Posts[];
   
+  @ManyToMany(() => Posts, (post) =>post.likes)
+  declare likedPosts: Posts[]
 }
