@@ -1,11 +1,12 @@
-import { ForbiddenException, Injectable, NotFoundException } from '@nestjs/common';
+import { ForbiddenException, Injectable, NotFoundException ,Inject} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Posts } from './posts.entity';
 import { Repository,In} from 'typeorm';
 import { CreatePostDto } from './dto/create-post.dto';
 import { UsersService } from 'src/users/users.service';
 import { UpdatePostDto } from './dto/update-post.dto';
-import { User } from 'src/users/user.entity';
+import Redis from 'ioredis';
+import { plainToInstance } from 'class-transformer';
 
 @Injectable()
 export class PostsService {
@@ -13,7 +14,8 @@ export class PostsService {
         @InjectRepository(Posts) 
         private postsRepository: Repository<Posts>,
        
-        private usersService: UsersService 
+        private usersService: UsersService,
+        @Inject('REDIS_CLIENT') private readonly redis:Redis
     ) {}
 
     async createPost(dto: CreatePostDto,authorId:number) {
@@ -73,26 +75,37 @@ export class PostsService {
 
     
 
-    async getFeed(userId:number){
+    async getFeed(userId: number) {
+        const cacheKey = `feed_user_${userId}`;
+        const cachedData = await this.redis.get(cacheKey);
+
+        if (cachedData) {
+            const plainPosts = JSON.parse(cachedData)
+            return plainToInstance(Posts,plainPosts);
+        }
+
         const me = await this.usersService.findWithFollowing(userId);
 
-        if(!me){
-            throw new NotFoundException("The user is not found");
+        if (!me) {
+            throw new NotFoundException('User not found');
         }
-        const followingIds = me.following.map(user => user.id);
-        
+
+        const followingIds = me.following.map((user) => user.id);
+
         if (followingIds.length === 0) {
             return [];
         }
 
-        return await this.postsRepository.find({
-            where:{
-                author:{
-                    id:In(followingIds)
-                }
+        const posts = await this.postsRepository.find({
+            where: {
+                author: { id: In(followingIds) },
             },
-            relations:['author'],
-            order:{id:'DESC'}
-        })
+            relations: ['author'],
+            order: { id: 'DESC' },
+        });
+
+        await this.redis.set(cacheKey, JSON.stringify(posts), 'EX', 60);
+
+        return posts;
     }
 }
