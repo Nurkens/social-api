@@ -38,7 +38,7 @@ export class PostsService {
     async getAllPosts(){
         const posts = await this.postsRepository.find({relations:['author','likes']});
 
-        const postsWithLikes = posts.map(post =>{
+        return posts.map(post =>{
             const{likes,...postData} = post;
             return {...postData, likesCount:likes ? likes.length: 0}
         })
