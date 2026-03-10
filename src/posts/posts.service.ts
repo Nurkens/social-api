@@ -76,7 +76,7 @@ export class PostsService {
     
 
     async getFeed(userId: number) {
-        const cacheKey = `feed_user_${userId}`;
+        const cacheKey = `feed_user${userId}`;
         const cachedData = await this.redis.get(cacheKey);
 
         if (cachedData) {
@@ -100,13 +100,19 @@ export class PostsService {
             where: {
                 author: { id: In(followingIds) },
             },
-            relations: ['author'],
+            relations: ['author','likes'],
             order: { id: 'DESC' },
         });
+        
+        const postsWithLikes = posts.map(post =>{
+            const {likes, ...postData} = post;
+            return {...postData,likesCount: likes ? likes.length:0};
+        })
 
-        await this.redis.set(cacheKey, JSON.stringify(posts), 'EX', 60);
 
-        return posts;
+        await this.redis.set(cacheKey, JSON.stringify(postsWithLikes), 'EX', 60);
+
+        return postsWithLikes;
     }
     async toggleLike(userId:number,postId:number){
         const posts = await this.postsRepository.findOne({

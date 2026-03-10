@@ -23,6 +23,7 @@ export class Posts{
     @JoinTable()
     declare likes:User[]
 
+    declare likeCounts?:number;
 
 
 }
