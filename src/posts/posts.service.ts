@@ -108,7 +108,7 @@ export class PostsService {
             where: {
                 author: { id: In(followingIds) },
             },
-            relations: ['author', 'likes'],
+            relations: ['author', 'likes','comments','comments.author'],
             order: { id: 'DESC' },
         });
 
@@ -146,6 +146,6 @@ export class PostsService {
         const cacheKey = `feed_user${userId}`;
         await this.redis.del(cacheKey);
 
-        return { liked: !isAlreadyLiked }
+        return { liked: !isAlreadyLiked}
     }
 }

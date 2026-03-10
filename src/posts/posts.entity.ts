@@ -28,7 +28,7 @@ export class Posts{
     declare comments:Comments[];
 
 
-    declare likeCounts?:number;
+    declare likeCount?:number;
 
 
 }
