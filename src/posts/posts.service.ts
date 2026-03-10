@@ -83,8 +83,9 @@ export class PostsService {
 
     
 
-    async getFeed(userId: number) {
-        const cacheKey = `feed_user${userId}`;
+    async getFeed(userId: number,page:number,limit:number) {
+        const skip = (page - 1) * limit;
+        const cacheKey = `feed_user_${userId}_p${page}_l${limit}`;
         const cachedData = await this.redis.get(cacheKey);
 
         if (cachedData) {
@@ -110,18 +111,23 @@ export class PostsService {
             },
             relations: ['author', 'likes','comments','comments.author'],
             order: { id: 'DESC' },
+            take:limit,
+            skip:skip
         });
 
         const postsWithLikes = posts.map(post => {
             const { likes, ...postData } = post;
             return { ...postData, likesCount: likes ? likes.length : 0 };
         })
-
+    
 
         await this.redis.set(cacheKey, JSON.stringify(postsWithLikes), 'EX', 60);
 
         return plainToInstance(Posts,postsWithLikes);
     }
+
+
+    
     async toggleLike(userId: number, postId: number) {
         const posts = await this.postsRepository.findOne({
             where: { id: postId },

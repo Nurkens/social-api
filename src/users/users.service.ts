@@ -4,7 +4,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { CreateUserDto } from './dto/create.user-dto';
 import * as bcrypt from 'bcrypt';
-import { NotFoundError } from 'rxjs';
+
 
 @Injectable()
 export class UsersService {

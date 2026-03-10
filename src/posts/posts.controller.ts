@@ -1,4 +1,4 @@
-import { Controller, UseGuards } from '@nestjs/common';
+import { Controller, Query, UseGuards } from '@nestjs/common';
 import { PostsService } from './posts.service';
 import { Get,Post ,Body,Req,Delete,Patch,Param} from '@nestjs/common';
 import { CreatePostDto } from './dto/create-post.dto';
@@ -36,9 +36,9 @@ export class PostsController {
     }
     @UseGuards(AuthGuard('jwt'))
     @Get('feed')
-    getFeed(@Req() req) {
+    getFeed(@Req() req,@Query('page') page:string = '1',@Query('limit') limit:string = '10') {
         const userId = req.user.userId;
-        return this.postsService.getFeed(userId);
+        return this.postsService.getFeed(userId,+page,+limit);
     }
     @UseGuards(AuthGuard('jwt'))
     @Post(':id/like')
