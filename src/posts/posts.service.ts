@@ -36,7 +36,13 @@ export class PostsService {
 
 
     async getAllPosts(){
-        return await this.postsRepository.find({relations:['author']});
+        const posts = await this.postsRepository.find({relations:['author','likes']});
+
+        const postsWithLikes = posts.map(post =>{
+            const{likes,...postData} = post;
+            return {...postData, likesCount:likes ? likes.length: 0}
+        })
+        
     }
 
     async remove(id:number,userId:number){
@@ -81,7 +87,7 @@ export class PostsService {
 
         if (cachedData) {
             const plainPosts = JSON.parse(cachedData)
-            return plainToInstance(Posts,plainPosts);
+            return plainToInstance(Posts, plainPosts);
         }
 
         const me = await this.usersService.findWithFollowing(userId);
@@ -100,44 +106,44 @@ export class PostsService {
             where: {
                 author: { id: In(followingIds) },
             },
-            relations: ['author','likes'],
+            relations: ['author', 'likes'],
             order: { id: 'DESC' },
         });
-        
-        const postsWithLikes = posts.map(post =>{
-            const {likes, ...postData} = post;
-            return {...postData,likesCount: likes ? likes.length:0};
+
+        const postsWithLikes = posts.map(post => {
+            const { likes, ...postData } = post;
+            return { ...postData, likesCount: likes ? likes.length : 0 };
         })
 
 
         await this.redis.set(cacheKey, JSON.stringify(postsWithLikes), 'EX', 60);
 
-        return postsWithLikes;
+        return plainToInstance(Posts,postsWithLikes);
     }
-    async toggleLike(userId:number,postId:number){
+    async toggleLike(userId: number, postId: number) {
         const posts = await this.postsRepository.findOne({
-            where:{id:postId},
-            relations:['likes']
+            where: { id: postId },
+            relations: ['likes']
         })
-        
-        if(!posts){
+
+        if (!posts) {
             throw new NotFoundException("Post is not found");
         }
 
         const user = await this.usersService.findOne(userId);
-        if(!user){
+        if (!user) {
             throw new NotFoundException("User is not found");
         }
         const isAlreadyLiked = posts.likes.some(u => u.id === user.id);
-        if(isAlreadyLiked){
-            posts.likes = posts.likes.filter(u => u.id!== userId)
-        }else{
+        if (isAlreadyLiked) {
+            posts.likes = posts.likes.filter(u => u.id !== userId)
+        } else {
             posts.likes.push(user);
         }
         await this.postsRepository.save(posts)
         const cacheKey = `feed_user${userId}`;
         await this.redis.del(cacheKey);
 
-        return {liked:!isAlreadyLiked}
+        return { liked: !isAlreadyLiked }
     }
 }
