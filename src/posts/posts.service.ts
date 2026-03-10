@@ -33,7 +33,9 @@ export class PostsService {
 
         return await this.postsRepository.save(post);
     }
-
+    async findOne(userId:number){
+        return await this.postsRepository.findOne({where:{id:userId}})
+    }
 
     async getAllPosts(){
         const posts = await this.postsRepository.find({relations:['author','likes']});

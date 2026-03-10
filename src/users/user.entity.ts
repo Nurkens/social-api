@@ -2,6 +2,7 @@
 import { Entity, Column, PrimaryGeneratedColumn, OneToMany,ManyToMany,JoinTable } from 'typeorm';
 import { Posts } from 'src/posts/posts.entity';
 import { Exclude } from 'class-transformer';
+import { Comments } from 'src/comments/comment.entity';
 
 @Entity()
 export class User {
@@ -32,5 +33,8 @@ export class User {
   declare posts: Posts[];
   
   @ManyToMany(() => Posts, (post) =>post.likes)
-  declare likedPosts: Posts[]
+  declare likedPosts:Posts[];
+
+  @OneToMany(() =>Comments,(comment)=>comment.author)
+  declare comments:Comments[];
 }
