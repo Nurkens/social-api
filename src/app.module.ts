@@ -7,6 +7,7 @@ import { AuthModule } from './auth/auth.module';
 
 import { RedisModule } from './common/redis.module';
 import { CommentsModule } from './comments/comments.module';
+import { FilesModule } from './files/files.module';
 @Module({
   imports: [
    
@@ -32,7 +33,8 @@ import { CommentsModule } from './comments/comments.module';
     PostsModule,
     AuthModule,
     RedisModule,
-    CommentsModule
+    CommentsModule,
+    FilesModule
   ],
   controllers: [],
   providers: [],

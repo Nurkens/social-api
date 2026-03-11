@@ -80,4 +80,8 @@ export class UsersService {
             relations: ['following'] 
         });
     }
+
+    async updateAvatar(userId:number,fileName:string){
+        return await this.userRepository.update(userId,{avatar:fileName})
+    }
 }

@@ -1,7 +1,7 @@
 version: '3.8'
 
 services:
-  # Наша база данных (уже была)
+ 
   db:
     image: postgres:15-alpine
     container_name: social_db
@@ -22,6 +22,16 @@ services:
     restart: always
     ports:
       - "6379:6379"
-
+  minio:
+    image: minio/minio
+    container_name: social_storage
+    ports:
+      - "9000:9000" 
+      - "9001:9001" 
+    environment:
+      MINIO_ROOT_USER: admin
+      MINIO_ROOT_PASSWORD: password123
+    command: server /data --console-address ":9001"
 volumes:
   pgdata:
+  minio_data:

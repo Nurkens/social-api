@@ -1,10 +1,13 @@
-import { Controller, Post ,Body,Get,Param, UseGuards,Req} from '@nestjs/common';
+import { Controller, Post ,Body,Get,Param, UseGuards,Req, UseInterceptors, UploadedFile} from '@nestjs/common';
 import { UsersService } from './users.service';
 import { CreateUserDto } from './dto/create.user-dto';
 import { AuthGuard } from '@nestjs/passport';
+import { FileInterceptor } from '@nestjs/platform-express';
+import { FilesService } from 'src/files/files.service';
+
 @Controller('users')
 export class UsersController {
-    constructor(private usersService: UsersService){}
+    constructor(private usersService: UsersService,private filesService:FilesService){}
 
     @Post()
     create(@Body() userDto:CreateUserDto){
@@ -31,6 +34,13 @@ export class UsersController {
         return this.usersService.follow(userId,+targetId)
     }
 
+    @UseGuards(AuthGuard('jwt'))
+    @Post('avatar')
+    @UseInterceptors(FileInterceptor('image'))
+    async uploadImage(@UploadedFile() file ,@Req() req){
+        const fileName = await this.filesService.uploadFile(file)
+        return this.usersService.updateAvatar(req.user.userId,fileName)
+    }
 }
 
     
