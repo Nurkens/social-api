@@ -4,7 +4,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { CreateUserDto } from './dto/create.user-dto';
 import * as bcrypt from 'bcrypt';
-
+import { plainToInstance } from 'class-transformer';
 
 @Injectable()
 export class UsersService {
@@ -42,7 +42,7 @@ export class UsersService {
             throw new NotFoundException('No profile with this username');
          }
 
-         return profile;
+         return plainToInstance(User,profile);
 
     }
 

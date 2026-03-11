@@ -3,6 +3,7 @@ import { Entity, Column, PrimaryGeneratedColumn, OneToMany,ManyToMany,JoinTable 
 import { Posts } from 'src/posts/posts.entity';
 import { Exclude } from 'class-transformer';
 import { Comments } from 'src/comments/comment.entity';
+import { Transform } from 'class-transformer';
 
 @Entity()
 export class User {
@@ -22,6 +23,14 @@ export class User {
   @Column({nullable:true})
   declare bio?:string;
 
+  @Transform(({ value }) => {
+    if (!value) return null;
+    
+    if (value.startsWith('http')) return value;
+    
+
+    return `http://localhost:9000/avatars/${value}`;
+  })  
   @Column({nullable:true})
   declare avatar?:string;
 
