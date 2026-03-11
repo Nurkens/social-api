@@ -1,10 +1,12 @@
-import { Controller, Post ,Body,Get,Param, UseGuards,Req, UseInterceptors, UploadedFile} from '@nestjs/common';
+import { Controller, Post ,Body,Get,Param, UseGuards,Req, UseInterceptors, UploadedFile, MaxFileSizeValidator, FileTypeValidator, UseFilters} from '@nestjs/common';
 import { UsersService } from './users.service';
 import { CreateUserDto } from './dto/create.user-dto';
 import { AuthGuard } from '@nestjs/passport';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { FilesService } from 'src/files/files.service';
 import { ApiBearerAuth } from '@nestjs/swagger';
+import { ParseFilePipe } from '@nestjs/common';
+import { HttpExceptionFilter } from 'src/common/filters/http-exception.filter';
 
 @Controller('users')
 export class UsersController {
@@ -40,10 +42,16 @@ export class UsersController {
     @UseGuards(AuthGuard('jwt'))
     @Post('avatar')
     @UseInterceptors(FileInterceptor('image'))
-    async uploadImage(@UploadedFile() file ,@Req() req){
+    async uploadImage(@UploadedFile(new ParseFilePipe({
+        validators:[
+            new MaxFileSizeValidator({maxSize:1024*1024*2}),
+            new FileTypeValidator({fileType:'.(png|jpeg|jpg)$'}),
+        ],
+    })) file ,@Req() req){
         const fileName = await this.filesService.uploadFile(file,'avatars')
         return this.usersService.updateAvatar(req.user.userId,fileName)
     }
+
     @ApiBearerAuth()
     @UseGuards(AuthGuard('jwt'))
     @Post('unfollow/:id')

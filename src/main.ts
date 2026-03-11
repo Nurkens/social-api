@@ -2,6 +2,7 @@ import { NestFactory, Reflector } from '@nestjs/core';
 import { AppModule } from './app.module';
 import { ClassSerializerInterceptor, ValidationPipe } from '@nestjs/common';
 import { SwaggerModule,DocumentBuilder} from '@nestjs/swagger';
+import { HttpExceptionFilter } from './common/filters/http-exception.filter';
 async function bootstrap() {
 
   
@@ -20,6 +21,7 @@ async function bootstrap() {
     
   const documentFactory = () => SwaggerModule.createDocument(app, config);
   SwaggerModule.setup('api',app,documentFactory)
+  app.useGlobalFilters(new HttpExceptionFilter());
   await app.listen(process.env.PORT ?? 3000);
 }
 bootstrap();

@@ -1,4 +1,4 @@
-import { Controller, Query, UseGuards } from '@nestjs/common';
+import { Controller, Query, UseGuards,MaxFileSizeValidator,FileTypeValidator } from '@nestjs/common';
 import { PostsService } from './posts.service';
 import { Get,Post ,Body,Req,Delete,Patch,Param} from '@nestjs/common';
 import { CreatePostDto } from './dto/create-post.dto';
@@ -9,6 +9,7 @@ import { UploadedFile } from '@nestjs/common';
 import { FilesService } from 'src/files/files.service';
 import { UseInterceptors } from '@nestjs/common';
 import { ApiBearerAuth } from '@nestjs/swagger';
+import { ParseFilePipe } from '@nestjs/common';
 
 @Controller('posts')
 export class PostsController {
@@ -20,7 +21,10 @@ export class PostsController {
     @UseGuards(AuthGuard('jwt'))
     @Post()
     @UseInterceptors(FileInterceptor('image'))
-    async createPost(@Body() postDto:CreatePostDto,@Req() req, @UploadedFile() file:Express.Multer.File){
+    async createPost(@Body() postDto:CreatePostDto,@Req() req, @UploadedFile(new ParseFilePipe({validators:[
+                new MaxFileSizeValidator({maxSize:1024*1024*5}),
+                new FileTypeValidator({fileType:'.(png|jpeg|jpg)$'}),
+            ],})) file:Express.Multer.File){
         let fileName : string | undefined = undefined;
         if(file){
             fileName = await this.fileService.uploadFile(file,'posts');
