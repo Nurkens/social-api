@@ -5,10 +5,13 @@ import { Repository } from 'typeorm';
 import { CreateUserDto } from './dto/create.user-dto';
 import * as bcrypt from 'bcrypt';
 import { plainToInstance } from 'class-transformer';
+import Redis from 'ioredis';
+
 
 @Injectable()
 export class UsersService {
-    constructor(@InjectRepository(User) private userRepository: Repository<User> ){}
+    constructor(@InjectRepository(User) private userRepository: Repository<User> ,
+                        @Inject('REDIS_CLIENT') private readonly redis:Redis){}
     
     async createUser(dto: CreateUserDto){
         const salt = 10;
@@ -83,5 +86,39 @@ export class UsersService {
 
     async updateAvatar(userId:number,fileName:string){
         return await this.userRepository.update(userId,{avatar:fileName})
+    }
+    async unfollow(userId:number,targetId:number){
+
+        if(userId === targetId){
+            throw new BadRequestException('You cannot unfollow yourself');
+        }
+
+        const me = await this.userRepository.findOne({
+            where:{id:userId},
+            relations:['following']
+        });
+
+        if(!me){
+            throw new NotFoundException('The user is not found');
+        }
+
+        const targetUser = await this.userRepository.findOne({where:{id:targetId}});
+
+        if(!targetUser){
+            throw new NotFoundException('The target user is not found');
+
+        }
+
+        me.following = me.following.filter(u => u.id !== targetId);
+
+        await this.userRepository.save(me);
+        const keys = await this.redis.keys(`feed_user_${userId}*`);
+        if(keys.length> 0){
+            await this.redis.del(keys);
+        }
+        
+        
+
+        return {success:true};
     }
 }

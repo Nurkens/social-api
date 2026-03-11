@@ -31,7 +31,7 @@ export class UsersController {
     @ApiBearerAuth()
     @UseGuards(AuthGuard('jwt'))
     @Post('follow/:id')
-    followUser(@Param('id') targetId:number, @Req() req){
+    followUser(@Param('id') targetId:string, @Req() req){
         const userId = req.user.userId;
         return this.usersService.follow(userId,+targetId)
     }
@@ -44,6 +44,14 @@ export class UsersController {
         const fileName = await this.filesService.uploadFile(file,'avatars')
         return this.usersService.updateAvatar(req.user.userId,fileName)
     }
+    @ApiBearerAuth()
+    @UseGuards(AuthGuard('jwt'))
+    @Post('unfollow/:id')
+    unfollow(@Req() req , @Param('id') targetId:string){
+        const userId = req.user.userId;
+        return this.usersService.unfollow(userId,+targetId)
+    }
+
 }
 
     
