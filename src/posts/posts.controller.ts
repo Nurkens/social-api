@@ -8,12 +8,15 @@ import { FileInterceptor } from '@nestjs/platform-express';
 import { UploadedFile } from '@nestjs/common';
 import { FilesService } from 'src/files/files.service';
 import { UseInterceptors } from '@nestjs/common';
+import { ApiBearerAuth } from '@nestjs/swagger';
+
 @Controller('posts')
 export class PostsController {
     constructor(private postsService: PostsService,
                 private fileService:FilesService
     ){}
 
+    @ApiBearerAuth()
     @UseGuards(AuthGuard('jwt'))
     @Post()
     @UseInterceptors(FileInterceptor('image'))
@@ -32,25 +35,28 @@ export class PostsController {
         return this.postsService.getAllPosts();
     }
 
+    @ApiBearerAuth()
     @UseGuards(AuthGuard('jwt'))
     @Delete(':id')
     deletePost(@Param('id') id:string, @Req() req){
         const userId = req.user.userId;
         return this.postsService.remove(+id,userId);
     }
-    
+    @ApiBearerAuth()
     @UseGuards(AuthGuard('jwt'))
     @Patch(':id')
     updatePost(@Param('id') id:string, @Req() req, @Body() updateDto:UpdatePostDto){
         const userId = req.user.userId;
         return this.postsService.update(+id,userId,updateDto);
     }
+    @ApiBearerAuth()
     @UseGuards(AuthGuard('jwt'))
     @Get('feed')
     getFeed(@Req() req,@Query('page') page:string = '1',@Query('limit') limit:string = '10') {
         const userId = req.user.userId;
         return this.postsService.getFeed(userId,+page,+limit);
     }
+    @ApiBearerAuth()
     @UseGuards(AuthGuard('jwt'))
     @Post(':id/like')
     toggleLike(@Param('id') postId:string,@Req() req){
