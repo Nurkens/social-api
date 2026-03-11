@@ -4,6 +4,7 @@ import { Entity, PrimaryGeneratedColumn } from "typeorm";
 import { Column } from "typeorm";
 import { ManyToOne,ManyToMany,JoinTable,OneToMany} from "typeorm";
 import { Comments } from "src/comments/comment.entity";
+import { Transform } from "class-transformer";
 
 @Entity()
 export class Posts{
@@ -16,6 +17,17 @@ export class Posts{
 
     @Column()
     declare content:string;
+
+    @Transform(({value}) =>{
+        if(!value) return null
+        if(value.startsWith('http')) return value
+        
+        return `http://localhost:9000/posts/${value}`
+    })
+    @Column({nullable:true})
+    declare image?:string;
+    
+
     @Exclude()
     @ManyToOne(()=> User,(user)=>user.posts)
     declare author: User;

@@ -38,7 +38,7 @@ export class UsersController {
     @Post('avatar')
     @UseInterceptors(FileInterceptor('image'))
     async uploadImage(@UploadedFile() file ,@Req() req){
-        const fileName = await this.filesService.uploadFile(file)
+        const fileName = await this.filesService.uploadFile(file,'avatars')
         return this.usersService.updateAvatar(req.user.userId,fileName)
     }
 }

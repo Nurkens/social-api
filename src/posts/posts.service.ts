@@ -18,7 +18,7 @@ export class PostsService {
         @Inject('REDIS_CLIENT') private readonly redis:Redis
     ) {}
 
-    async createPost(dto: CreatePostDto,authorId:number) {
+    async createPost(dto: CreatePostDto,authorId:number,fileName?:string) {
         
         const user = await this.usersService.findOne(authorId);
 
@@ -28,8 +28,10 @@ export class PostsService {
 
         const post = this.postsRepository.create({
             ...dto,
-            author: user 
+            author: user,
+            image:fileName
         });
+        await this.redis.del(`feed_user${authorId}`);
 
         return await this.postsRepository.save(post);
     }

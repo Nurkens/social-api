@@ -1,6 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { S3Client, PutObjectCommand } from '@aws-sdk/client-s3';
 import { ConfigService } from '@nestjs/config';
+import { config } from 'process';
 
 @Injectable()
 export class FilesService {
@@ -18,13 +19,17 @@ export class FilesService {
     });
   }
 
-  async uploadFile(file: Express.Multer.File): Promise<string> {
+  async uploadFile(file: Express.Multer.File,bucketName:string): Promise<string> {
     const fileName = `${Date.now()}-${file.originalname}`;
     
+    const configKey = `S3_BUCKET_${bucketName.toUpperCase}` 
+
+    const bucket = this.configService.get<string>(configKey) ?? bucketName;
+
     await this.s3Client.send(
       new PutObjectCommand({
-        Bucket: this.configService.get<string>('S3_BUCKET') ?? 'avatars', 
-        Key: fileName,
+        Bucket: bucket, 
+        Key: fileName, 
         Body: file.buffer,
         ContentType: file.mimetype,
       }),

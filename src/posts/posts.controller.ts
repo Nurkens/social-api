@@ -4,16 +4,27 @@ import { Get,Post ,Body,Req,Delete,Patch,Param} from '@nestjs/common';
 import { CreatePostDto } from './dto/create-post.dto';
 import { AuthGuard } from '@nestjs/passport';
 import { UpdatePostDto } from './dto/update-post.dto';
-
+import { FileInterceptor } from '@nestjs/platform-express';
+import { UploadedFile } from '@nestjs/common';
+import { FilesService } from 'src/files/files.service';
+import { UseInterceptors } from '@nestjs/common';
 @Controller('posts')
 export class PostsController {
-    constructor(private postsService: PostsService){}
+    constructor(private postsService: PostsService,
+                private fileService:FilesService
+    ){}
 
     @UseGuards(AuthGuard('jwt'))
     @Post()
-    createPost(@Body() postDto:CreatePostDto,@Req() req){
+    @UseInterceptors(FileInterceptor('image'))
+    async createPost(@Body() postDto:CreatePostDto,@Req() req, @UploadedFile() file:Express.Multer.File){
+        let fileName : string | undefined = undefined;
+        if(file){
+            fileName = await this.fileService.uploadFile(file,'posts');
+        }
         const userId = req.user.userId;
-        return this.postsService.createPost(postDto,userId);
+        return this.postsService.createPost(postDto,userId,fileName);
+
     }
     
     @Get()
@@ -46,4 +57,6 @@ export class PostsController {
         const userId = req.user.userId;
         return this.postsService.toggleLike(userId,+postId)
     }
+
+    
 }
