@@ -109,7 +109,7 @@ export class UsersService {
 
         }
 
-        me.following = me.following.filter(u => u.id !== targetId);
+        me.following = me.following.filter(followedUser => followedUser.id !== targetId);
 
         await this.userRepository.save(me);
         const keys = await this.redis.keys(`feed_user_${userId}*`);
