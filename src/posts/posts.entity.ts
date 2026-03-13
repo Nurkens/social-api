@@ -1,9 +1,9 @@
 import { Exclude } from "class-transformer";
-import { User } from "src/users/user.entity";
+import { User } from '../users/user.entity'
 import { Entity, PrimaryGeneratedColumn } from "typeorm";
 import { Column } from "typeorm";
 import { ManyToOne,ManyToMany,JoinTable,OneToMany} from "typeorm";
-import { Comments } from "src/comments/comment.entity";
+import { Comments } from '../comments/comment.entity'
 import { Transform } from "class-transformer";
 
 @Entity()

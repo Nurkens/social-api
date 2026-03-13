@@ -3,7 +3,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Posts } from './posts.entity';
 import { Repository,In} from 'typeorm';
 import { CreatePostDto } from './dto/create-post.dto';
-import { UsersService } from 'src/users/users.service';
+import { UsersService } from '../users/users.service';
 import { UpdatePostDto } from './dto/update-post.dto';
 import Redis from 'ioredis';
 import { plainToInstance } from 'class-transformer';

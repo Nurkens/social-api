@@ -1,8 +1,8 @@
 
 import { Entity, Column, PrimaryGeneratedColumn, OneToMany,ManyToMany,JoinTable } from 'typeorm';
-import { Posts } from 'src/posts/posts.entity';
+import {Posts} from '../posts/posts.entity'
 import { Exclude } from 'class-transformer';
-import { Comments } from 'src/comments/comment.entity';
+import { Comments } from '../comments/comment.entity'
 import { Transform } from 'class-transformer';
 
 @Entity()

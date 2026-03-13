@@ -1,17 +1,20 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { Injectable, NotFoundException,Inject} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Comments } from './comment.entity';
 import { Repository } from 'typeorm';
 import { CreateCommentsDto } from './dto/create-comments.dto';
-import { UsersService } from 'src/users/users.service';
-import { PostsService } from 'src/posts/posts.service';
+import { UsersService } from '../users/users.service';
+import { PostsService } from '../posts/posts.service';
+import Redis from 'ioredis';
+
 
 @Injectable()
 export class CommentsService {
     constructor(
         @InjectRepository(Comments) private commentsRepository: Repository<Comments>,
         private userService: UsersService,
-        private postService: PostsService
+        private postService: PostsService,
+        @Inject('REDIS_CLIENT') private readonly redis:Redis
     ) {}
 
     async createComment(dto: CreateCommentsDto, authorId: number) {
@@ -33,5 +36,8 @@ export class CommentsService {
 
       
         return await this.commentsRepository.save(comment);
+        const cacheKey = `feed_user${authorId}`;
+        await this.redis.del(cacheKey);
+        
     }
 }

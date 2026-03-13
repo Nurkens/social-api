@@ -4,7 +4,7 @@ import { PostsController } from './posts.controller';
 import { Posts } from './posts.entity';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { UsersModule } from '../users/users.module';
-import { FilesModule } from 'src/files/files.module';
+import { FilesModule } from '../files/files.module';
 @Module({
   imports: [
     TypeOrmModule.forFeature([Posts]), 

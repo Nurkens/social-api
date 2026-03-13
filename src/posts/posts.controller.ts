@@ -6,7 +6,7 @@ import { AuthGuard } from '@nestjs/passport';
 import { UpdatePostDto } from './dto/update-post.dto';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { UploadedFile } from '@nestjs/common';
-import { FilesService } from 'src/files/files.service';
+import { FilesService } from '../files/files.service';
 import { UseInterceptors } from '@nestjs/common';
 import { ApiBearerAuth } from '@nestjs/swagger';
 import { ParseFilePipe } from '@nestjs/common';

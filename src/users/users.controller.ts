@@ -6,7 +6,7 @@ import { FileInterceptor } from '@nestjs/platform-express';
 import { FilesService } from 'src/files/files.service';
 import { ApiBearerAuth } from '@nestjs/swagger';
 import { ParseFilePipe } from '@nestjs/common';
-import { HttpExceptionFilter } from 'src/common/filters/http-exception.filter';
+import { HttpExceptionFilter } from '../common/filters/http-exception.filter';
 
 @Controller('users')
 export class UsersController {
