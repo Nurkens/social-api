@@ -28,14 +28,19 @@ export class NotificationsGateway implements OnGatewayConnection, OnGatewayDisco
         try{
             const payload = await this.jwtService.verifyAsync(rawToken);
             
-            client.join(`user_${payload.userId}`);
+            client.join(`user_${payload.sub}`);
+            console.log(`user ${payload.sub} entered to room user_${payload.sub}`)
+            client.emit('notification', 'Welcome! You are connected.');
         }catch(e){
             client.disconnect();
         }
+        
     }
 
-    sendNotificaiton(userId:number,message:string){
-        this.server.to(`user_${userId}`).emit('notification',message)
+    sendNotification(userId: number, message: string) {
+
+      this.server.to(`user_${userId}`).emit('notification', message); 
+      
     }
 
 

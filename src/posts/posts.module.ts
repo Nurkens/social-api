@@ -5,11 +5,13 @@ import { Posts } from './posts.entity';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { UsersModule } from '../users/users.module';
 import { FilesModule } from '../files/files.module';
+import { NotificationsModule } from 'src/notifications/notifications.module';
 @Module({
   imports: [
     TypeOrmModule.forFeature([Posts]), 
     UsersModule, 
-    FilesModule
+    FilesModule,
+    NotificationsModule
   ],
   controllers: [PostsController],
   providers: [PostsService],

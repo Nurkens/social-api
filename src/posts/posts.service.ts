@@ -7,6 +7,8 @@ import { UsersService } from '../users/users.service';
 import { UpdatePostDto } from './dto/update-post.dto';
 import Redis from 'ioredis';
 import { plainToInstance } from 'class-transformer';
+import { NotificationsGateway } from 'src/notifications/notifications.gateway';
+import { length } from 'class-validator';
 
 @Injectable()
 export class PostsService {
@@ -15,7 +17,8 @@ export class PostsService {
         private postsRepository: Repository<Posts>,
        
         private usersService: UsersService,
-        @Inject('REDIS_CLIENT') private readonly redis:Redis
+        @Inject('REDIS_CLIENT') private readonly redis:Redis,
+        private notificationsGateway: NotificationsGateway
     ) {}
 
     async createPost(dto: CreatePostDto,authorId:number,fileName?:string) {
@@ -133,7 +136,7 @@ export class PostsService {
     async toggleLike(userId: number, postId: number) {
         const posts = await this.postsRepository.findOne({
             where: { id: postId },
-            relations: ['likes']
+            relations: ['likes','author']
         })
 
         if (!posts) {
@@ -151,9 +154,18 @@ export class PostsService {
             posts.likes.push(user);
         }
         await this.postsRepository.save(posts)
-        const cacheKey = `feed_user${userId}`;
-        await this.redis.del(cacheKey);
+        const postAuthorId = posts.author.id;
+        await this.notificationsGateway.sendNotification(postAuthorId,'Somebody liked your post')
+        const cacheKey = `feed_user_${userId}*`;
+        const keys = await this.redis.keys(cacheKey)
+        if(keys.length > 0){
+            await this.redis.del(keys);
+        }
+
+        console.log(`sending message to room: user_${postAuthorId}`)
+        
 
         return { liked: !isAlreadyLiked}
+        
     }
 }

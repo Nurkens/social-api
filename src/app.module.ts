@@ -4,11 +4,10 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
 import { UsersModule } from './users/users.module';
 import { PostsModule } from './posts/posts.module';
 import { AuthModule } from './auth/auth.module';
-
 import { RedisModule } from './common/redis.module';
 import { CommentsModule } from './comments/comments.module';
 import { FilesModule } from './files/files.module';
-import { NotificationsGateway } from './notifications/notifications.gateway';
+import { NotificationsModule } from './notifications/notifications.module';
 @Module({
   imports: [
    
@@ -35,9 +34,10 @@ import { NotificationsGateway } from './notifications/notifications.gateway';
     AuthModule,
     RedisModule,
     CommentsModule,
-    FilesModule
+    FilesModule,
+    NotificationsModule
   ],
   controllers: [],
-  providers: [NotificationsGateway],
+  providers: [],
 })
 export class AppModule {}
