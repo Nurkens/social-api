@@ -8,6 +8,7 @@ import { AuthModule } from './auth/auth.module';
 import { RedisModule } from './common/redis.module';
 import { CommentsModule } from './comments/comments.module';
 import { FilesModule } from './files/files.module';
+import { NotificationsGateway } from './notifications/notifications.gateway';
 @Module({
   imports: [
    
@@ -37,6 +38,6 @@ import { FilesModule } from './files/files.module';
     FilesModule
   ],
   controllers: [],
-  providers: [],
+  providers: [NotificationsGateway],
 })
 export class AppModule {}
