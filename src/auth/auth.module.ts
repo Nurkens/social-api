@@ -13,14 +13,16 @@ import { JwtStrategy } from './jwt.strategy';
     UsersModule,
     ConfigModule, 
     JwtModule.registerAsync({
+      global:true,
       imports: [ConfigModule],
       inject: [ConfigService],
       useFactory: async (configService: ConfigService) => ({
         secret: configService.get<string>('JWT_SECRET'), 
         signOptions: { expiresIn: '24h' },
+        
       }),
     }),
   ],
-  exports:[JwtStrategy]
+  exports:[JwtStrategy,JwtModule]
 })
 export class AuthModule {}
