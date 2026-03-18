@@ -1,4 +1,4 @@
-import { Controller, Post ,Body,Get,Param, UseGuards,Req, UseInterceptors, UploadedFile, MaxFileSizeValidator, FileTypeValidator, UseFilters,Query} from '@nestjs/common';
+import { Controller, Post ,Body,Get,Param, UseGuards,Req, UseInterceptors, UploadedFile, MaxFileSizeValidator, FileTypeValidator, UseFilters,Query, Patch} from '@nestjs/common';
 import { UsersService } from './users.service';
 import { CreateUserDto } from './dto/create.user-dto';
 import { AuthGuard } from '@nestjs/passport';
@@ -7,6 +7,7 @@ import { FilesService } from 'src/files/files.service';
 import { ApiBearerAuth } from '@nestjs/swagger';
 import { ParseFilePipe } from '@nestjs/common';
 import { HttpExceptionFilter } from '../common/filters/http-exception.filter';
+import { UpdateUserDto } from './dto/update-user.dto';
 
 @Controller('users')
 export class UsersController {
@@ -66,6 +67,13 @@ export class UsersController {
         return this.usersService.unfollow(userId,+targetId)
     }
 
+    @ApiBearerAuth()
+    @UseGuards(AuthGuard('jwt'))
+    @Patch('update')
+    updateProfile(@Req() req ,@Body() dto:UpdateUserDto){
+        const userId = req.user.userId;
+        return this.usersService.update(userId,dto)
+    }
     
 
 }

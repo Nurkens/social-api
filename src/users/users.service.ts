@@ -1,4 +1,4 @@
-import { BadRequestException, Inject, Injectable, NotFoundException } from '@nestjs/common';
+import { BadRequestException, ConflictException, Inject, Injectable, NotFoundException } from '@nestjs/common';
 import { User } from './user.entity';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
@@ -7,6 +7,7 @@ import * as bcrypt from 'bcrypt';
 import { plainToInstance } from 'class-transformer';
 import Redis from 'ioredis';
 import { ILike } from 'typeorm';
+import { NotFound } from '@aws-sdk/client-s3';
 
 @Injectable()
 export class UsersService {
@@ -126,5 +127,26 @@ export class UsersService {
         return await this.userRepository.find({where:{
             username:ILike(`%${query}%`)
         }})
+    }
+
+    async update(userId,dto){
+        try{
+            await this.userRepository.update(userId,dto);
+        }catch(e){
+            if(e.code === '23505'){
+                throw new ConflictException('This username is already taken')
+            }
+        }
+        
+        const updatedUser = await this.userRepository.findOne({where:{id:userId}});
+        if(!updatedUser){
+            throw new NotFoundException('User not found')
+        }
+
+        const keys = await this.redis.keys(`feed_user_${userId}*`);
+        if(keys.length> 0){
+            await this.redis.del(keys);
+        }
+        return plainToInstance(User,updatedUser)
     }
 }
