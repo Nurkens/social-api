@@ -33,6 +33,8 @@ export class User {
   })  
   @Column({nullable:true})
   declare avatar?:string;
+  @Column({nullable:true})
+  declare phoneNumber:string;
 
   @ManyToMany(()=> User,(user) => user.following)
   declare followers: User[];
