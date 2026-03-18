@@ -1,4 +1,4 @@
-import { Controller, Post ,Body,Get,Param, UseGuards,Req, UseInterceptors, UploadedFile, MaxFileSizeValidator, FileTypeValidator, UseFilters} from '@nestjs/common';
+import { Controller, Post ,Body,Get,Param, UseGuards,Req, UseInterceptors, UploadedFile, MaxFileSizeValidator, FileTypeValidator, UseFilters,Query} from '@nestjs/common';
 import { UsersService } from './users.service';
 import { CreateUserDto } from './dto/create.user-dto';
 import { AuthGuard } from '@nestjs/passport';
@@ -21,6 +21,12 @@ export class UsersController {
     getAllUsers(){
         return this.usersService.getAllUsers();
     }
+
+    @Get('search')
+    searchUsername(@Query('q') query:string){
+        return this.usersService.search(query);
+    }
+
     @Get(':id')
     findOne(@Param('id') id:number ){
         return this.usersService.findOne(id);
@@ -59,6 +65,8 @@ export class UsersController {
         const userId = req.user.userId;
         return this.usersService.unfollow(userId,+targetId)
     }
+
+    
 
 }
 

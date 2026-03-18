@@ -6,7 +6,7 @@ import { CreateUserDto } from './dto/create.user-dto';
 import * as bcrypt from 'bcrypt';
 import { plainToInstance } from 'class-transformer';
 import Redis from 'ioredis';
-
+import { ILike } from 'typeorm';
 
 @Injectable()
 export class UsersService {
@@ -14,13 +14,13 @@ export class UsersService {
                         @Inject('REDIS_CLIENT') private readonly redis:Redis){}
     
     async createUser(dto: CreateUserDto){
-        const salt = 10;
+        const salt = 10;  // for bcrypt(random text for bcrypt to hash password )
         const hashedPassword = await bcrypt.hash(dto.password,salt);
 
         const user = this.userRepository.create({
             ...dto,
             password: hashedPassword
-        });
+        });   // we are creating user and for password we store hashedPassword instead of password which was sent 
         return await this.userRepository.save(user);
     }
 
@@ -38,7 +38,7 @@ export class UsersService {
     async getProfileByUsername(username:string){
          const profile = await this.userRepository.findOne({
             where:{username},
-            relations:['posts']
+            relations:['posts']  // here we are making relations with posts entity
         });
 
          if(!profile){
@@ -120,5 +120,11 @@ export class UsersService {
         
 
         return {success:true};
+    }
+
+    async search(query:string){
+        return await this.userRepository.find({where:{
+            username:ILike(`%${query}%`)
+        }})
     }
 }
