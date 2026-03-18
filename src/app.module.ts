@@ -26,7 +26,7 @@ import { NotificationsModule } from './notifications/notifications.module';
         password: configService.get<string>('POSTGRES_PASSWORD'),
         database: configService.get<string>('POSTGRES_DB'),
         autoLoadEntities: true,
-        synchronize: true, 
+        synchronize: false, 
       }),
     }),
     UsersModule,

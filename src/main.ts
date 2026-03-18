@@ -7,7 +7,7 @@ async function bootstrap() {
 
   
   const app = await NestFactory.create(AppModule);
-  app.useGlobalPipes(new ValidationPipe());
+  app.useGlobalPipes(new ValidationPipe()); // for validations 
   app.useGlobalInterceptors(new ClassSerializerInterceptor(app.get(Reflector)))
   
 
