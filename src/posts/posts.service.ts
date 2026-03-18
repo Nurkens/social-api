@@ -8,7 +8,7 @@ import { UpdatePostDto } from './dto/update-post.dto';
 import Redis from 'ioredis';
 import { plainToInstance } from 'class-transformer';
 import { NotificationsGateway } from 'src/notifications/notifications.gateway';
-import { length } from 'class-validator';
+
 
 @Injectable()
 export class PostsService {
@@ -93,9 +93,13 @@ export class PostsService {
         const cacheKey = `feed_user_${userId}_p${page}_l${limit}`;
         const cachedData = await this.redis.get(cacheKey);
 
+
         if (cachedData) {
-            const plainPosts = JSON.parse(cachedData)
-            return plainToInstance(Posts, plainPosts);
+            const cachedResult = JSON.parse(cachedData);
+            return {
+                data: plainToInstance(Posts, cachedResult.data), 
+                meta: cachedResult.meta                         
+            };
         }
 
         const me = await this.usersService.findWithFollowing(userId);
@@ -107,10 +111,19 @@ export class PostsService {
         const followingIds = me.following.map((user) => user.id);
 
         if (followingIds.length === 0) {
-            return [];
+            return {
+                data:[],
+                meta:{
+                    totalItems:0,
+                    itemCount:0,
+                    itemsPerPage:limit,
+                    totalPages:0,
+                    currentPage:page
+            }
+            };
         }
 
-        const posts = await this.postsRepository.find({
+        const [items,total] = await this.postsRepository.findAndCount({
             where: {
                 author: { id: In(followingIds) },
             },
@@ -120,15 +133,26 @@ export class PostsService {
             skip:skip
         });
 
-        const postsWithLikes = posts.map(post => {
+        const postsWithLikes = items.map(post => {
             const { likes, ...postData } = post;
             return { ...postData, likesCount: likes ? likes.length : 0 };
         })
+
+        const result = {
+            data:plainToInstance(Posts,postsWithLikes),
+            meta:{
+                totalItems:total,
+                itemCount:postsWithLikes.length,
+                itemsPerPage:limit,
+                totalPages:Math.ceil(total / limit),
+                currentPage:page
+            }
+        }
     
 
-        await this.redis.set(cacheKey, JSON.stringify(postsWithLikes), 'EX', 60);
+        await this.redis.set(cacheKey, JSON.stringify(result), 'EX', 60);
 
-        return plainToInstance(Posts,postsWithLikes);
+        return result;
     }
 
 

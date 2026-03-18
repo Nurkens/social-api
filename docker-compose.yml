@@ -34,4 +34,4 @@ services:
     command: server /data --console-address ":9001"
 volumes:
   pgdata:
-  minio_dat
+  minio_data:
