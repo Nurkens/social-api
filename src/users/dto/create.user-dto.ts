@@ -8,7 +8,7 @@ export class CreateUserDto{
     readonly email: string;
     @ApiProperty({example:"nurken1234",description:"Password"})
     @IsNotEmpty()
-    @Length(8,10)
+    @Length(8,20)
     readonly password: string;
     @ApiProperty({example:"nurken",description:"Username"})
     @IsNotEmpty()

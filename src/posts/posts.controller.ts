@@ -24,7 +24,9 @@ export class PostsController {
     async createPost(@Body() postDto:CreatePostDto,@Req() req, @UploadedFile(new ParseFilePipe({validators:[
                 new MaxFileSizeValidator({maxSize:1024*1024*5}),
                 new FileTypeValidator({fileType:'.(png|jpeg|jpg)$'}),
-            ],})) file:Express.Multer.File){
+            ],
+            fileIsRequired:false,
+        })) file:Express.Multer.File){
         let fileName : string | undefined = undefined;
         if(file){
             fileName = await this.fileService.uploadFile(file,'posts');
