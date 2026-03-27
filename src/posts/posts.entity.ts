@@ -1,6 +1,6 @@
 import { Exclude } from "class-transformer";
 import { User } from '../users/user.entity'
-import { Entity, PrimaryGeneratedColumn } from "typeorm";
+import { DeleteDateColumn, Entity, PrimaryGeneratedColumn } from "typeorm";
 import { Column } from "typeorm";
 import { ManyToOne,ManyToMany,JoinTable,OneToMany} from "typeorm";
 import { Comments } from '../comments/comment.entity'
@@ -27,6 +27,8 @@ export class Posts{
     @Column({nullable:true})
     declare image?:string;
     
+    @DeleteDateColumn()
+    declare deletedAt:Date;
 
     @Exclude()
     @ManyToOne(()=> User,(user)=>user.posts)

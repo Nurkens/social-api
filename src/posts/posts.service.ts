@@ -63,7 +63,7 @@ export class PostsService {
             throw new NotFoundException('You are not the author of this post');
         }
 
-        return await this.postsRepository.delete(id);
+        return await this.postsRepository.softDelete(id);
 
     }
 
