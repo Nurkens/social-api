@@ -66,6 +66,7 @@ export class PostsService {
         return await this.postsRepository.softDelete(id);
 
     }
+    
 
     async update(id:number,userId:number,updateDto:UpdatePostDto){
         const post = await this.postsRepository.findOne({
