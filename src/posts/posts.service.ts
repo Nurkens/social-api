@@ -8,7 +8,8 @@ import { UpdatePostDto } from './dto/update-post.dto';
 import Redis from 'ioredis';
 import { plainToInstance } from 'class-transformer';
 import { NotificationsGateway } from 'src/notifications/notifications.gateway';
-
+import { InjectQueue } from '@nestjs/bullmq';
+import { Queue } from 'bullmq';
 
 @Injectable()
 export class PostsService {
@@ -18,7 +19,8 @@ export class PostsService {
        
         private usersService: UsersService,
         @Inject('REDIS_CLIENT') private readonly redis:Redis,
-        private notificationsGateway: NotificationsGateway
+        private notificationsGateway: NotificationsGateway,
+        @InjectQueue('notifications') private readonly notificationsQueue: Queue
     ) {}
 
     async createPost(dto: CreatePostDto,authorId:number,fileName?:string) {
@@ -179,7 +181,7 @@ export class PostsService {
         }
         await this.postsRepository.save(posts)
         const postAuthorId = posts.author.id;
-        await this.notificationsGateway.sendNotification(postAuthorId,'Somebody liked your post')
+        await this.notificationsQueue.add('like',{userId:postAuthorId,message:'Somebody liked your post'})
         const cacheKey = `feed_user_${userId}*`;
         const keys = await this.redis.keys(cacheKey)
         if(keys.length > 0){

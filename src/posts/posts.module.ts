@@ -6,12 +6,14 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { UsersModule } from '../users/users.module';
 import { FilesModule } from '../files/files.module';
 import { NotificationsModule } from 'src/notifications/notifications.module';
+import { BullModule } from '@nestjs/bullmq';
 @Module({
   imports: [
     TypeOrmModule.forFeature([Posts]), 
     UsersModule, 
     FilesModule,
-    NotificationsModule
+    NotificationsModule,
+    BullModule.registerQueue({name:'notifications'})
   ],
   controllers: [PostsController],
   providers: [PostsService],

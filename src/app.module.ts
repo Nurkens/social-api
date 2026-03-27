@@ -8,6 +8,7 @@ import { RedisModule } from './common/redis.module';
 import { CommentsModule } from './comments/comments.module';
 import { FilesModule } from './files/files.module';
 import { NotificationsModule } from './notifications/notifications.module';
+import { BullModule } from '@nestjs/bullmq';
 @Module({
   imports: [
    
@@ -29,6 +30,16 @@ import { NotificationsModule } from './notifications/notifications.module';
         synchronize: false, 
       }),
     }),
+    BullModule.forRootAsync({
+      imports:[ConfigModule],
+      inject:[ConfigService],
+      useFactory:(configService:ConfigService )=>({
+        connection:{
+          host:configService.get('REDIS_HOST'),
+          port:configService.get('REDIS_PORT')
+        }
+      }),
+    }),
     UsersModule,
     PostsModule,
     AuthModule,
@@ -37,6 +48,7 @@ import { NotificationsModule } from './notifications/notifications.module';
     FilesModule,
     NotificationsModule
   ],
+  
   controllers: [],
   providers: [],
 })
